@@ -2,10 +2,10 @@
   <compiler angle="radian" autolimits="true"/>
   <statistic meansize="0.0284695" extent="0.308061" center="-0.000667131 -0.00439504 0.116234"/>
   <asset>
-    <!-- 蓝白棋盘纹理 -->
+    <!-- Blue-and-white checkerboard texture -->
     <texture name="grid_tex" type="2d" builtin="checker" rgb1="0.2 0.3 0.8" rgb2="1 1 1" width="512" height="512"/>
     
-    <!-- 关联纹理的材质 -->
+    <!-- Material using the checkerboard texture -->
     <material name="grid_material" texture="grid_tex" texrepeat="10 10" specular="0.3" shininess="0.5"/>
     <mesh name="base_link" file="base_link.STL"/>
     <mesh name="thumb_link0" file="thumb_link0.STL"/>
@@ -46,7 +46,7 @@
     <equality solref="0.01 1"/>
   </default>
   <worldbody>
-  <!-- 蓝白方格地面 -->
+  <!-- Blue-and-white tiled floor -->
     <geom 
     name="floor" 
     type="plane" 

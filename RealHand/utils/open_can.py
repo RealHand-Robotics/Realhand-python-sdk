@@ -5,7 +5,7 @@ Author: HJX
 Date: 2025-04-01 14:09:21
 LastEditors: Please set LastEditors
 LastEditTime: 2025-04-11 09:15:31
-FilePath: /Real_Hand_SDK_ROS/src/real_hand_sdk_ros/scripts/RealHand/utils/open_can.py
+FilePath: RealHand/utils/open_can.py
 Description: 
 symbol_custom_string_obkorol_copyright: 
 '''

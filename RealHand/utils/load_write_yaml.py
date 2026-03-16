@@ -5,7 +5,7 @@ Author: HJX
 Date: 2025-04-01 14:09:21
 LastEditors: Please set LastEditors
 LastEditTime: 2025-04-11 10:19:01
-FilePath: /RealHand_Python_SDK/RealHand/utils/load_write_yaml.py
+FilePath: RealHand/utils/load_write_yaml.py
 Description: 
 symbol_custom_string_obkorol_copyright: 
 '''

@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from types import MappingProxyType
 
-@dataclass(frozen=True)        # frozen=True 让实例真正只读
+@dataclass(frozen=True)        # frozen=True makes instances effectively read-only
 class HandConfig:
     joint_names: List[str] = field(default_factory=list)
     joint_names_en: Optional[List[str]] = None
@@ -11,22 +11,37 @@ class HandConfig:
     preset_actions: Optional[Dict[str, List[int]]] = None
 
 # ------------------------------------------------------------------
-# 常量字典（仅构建一次）
+# Constant map, built once at import time
 # ------------------------------------------------------------------
 _HAND_CONFIGS: Dict[str, HandConfig] = {
     "L30": HandConfig(
         joint_names=[
-            "Thumb Side Swing", "Thumb Rotation", "Thumb Bend", "Thumb Tip",
-            "Index Side Swing", "Index Base Bend", "Index Tip",
-            "Middle Side Swing", "Middle Base", "Middle Tip",
-            "Ring Side Swing", "Ring Base", "Ring Tip",
-            "Little Side Swing", "Little Base", "Little Tip",
+            "Thumb Root", "Thumb Side", "Thumb Rotate", "Thumb Tip",
+            "Index Side", "Index Root", "Index Tip",
+            "Middle Side", "Middle Root", "Middle Tip",
+            "Ring Side", "Ring Root", "Ring Tip",
+            "Little Side", "Little Root", "Little Tip",
             "Wrist"
         ],
-        init_pos=[255] * 17,
+        init_pos=[255, 255, 255, 255, 128, 255, 255, 128, 255, 255, 128, 255, 255, 128, 255, 255, 128],
         preset_actions={
-            "Open": [255] * 17,
-            "Fist": [0] * 17
+            "Open": [255, 255, 255, 255, 128, 255, 255, 128, 255, 255, 128, 255, 255, 128, 255, 255, 128],
+            "OK": [57, 255, 255, 146, 93, 87, 147, 128, 255, 255, 114, 255, 255, 128, 255, 255, 128],
+            "Point": [255, 74, 255, 255, 128, 255, 255, 132, 0, 15, 112, 0, 15, 128, 45, 0, 128],
+            "Two": [255, 74, 255, 255, 128, 255, 255, 140, 255, 251, 112, 0, 15, 128, 45, 0, 128],
+            "Three": [255, 74, 255, 255, 128, 255, 255, 140, 255, 255, 112, 255, 255, 128, 45, 0, 128],
+            "Preset-1": [57, 253, 255, 141, 93, 255, 255, 69, 51, 158, 176, 255, 255, 128, 255, 255, 128],
+            "Preset-2": [71, 253, 200, 148, 93, 255, 255, 123, 255, 255, 132, 77, 132, 128, 255, 255, 128],
+            "Preset-3": [65, 255, 175, 174, 93, 255, 255, 123, 255, 255, 52, 255, 255, 83, 118, 142, 128],
+            "Preset-4": [0, 74, 146, 39, 128, 255, 255, 140, 255, 255, 112, 255, 255, 128, 255, 255, 128],
+            "Preset-5":[0, 74, 146, 39, 0, 255, 255, 0, 255, 255, 0, 255, 255, 0, 255, 255, 128],
+            "Preset-6": [0, 74, 146, 39, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 128],
+            
+            
+            
+            
+            
+            
         }
     ),
     "L25": HandConfig(
@@ -176,13 +191,13 @@ _HAND_CONFIGS: Dict[str, HandConfig] = {
     ),
     # Thumb joint (ball type) L7
     # "L7": HandConfig(
-    #     joint_names=["大拇指弯曲", "大拇指横摆", "食指弯曲", "中指弯曲", "无名指弯曲",
-    #                  "小拇指弯曲", "拇指旋转"],
+    #     joint_names=["Thumb flexion", "Thumb yaw", "Index finger flexion", "Middle finger flexion", "Ring finger flexion",
+    #                  "Little finger flexion", "Thumb rotation"],
     #     init_pos=[250] * 7,
     #     preset_actions={
-    #         "点赞": [255, 111, 0, 0, 0, 0, 86],
-    #         "握拳": [71, 79, 0, 0, 0, 0, 64],
-    #         "张开": [255, 111, 250, 250, 250, 250, 55],
+    #         "Thumbs Up": [255, 111, 0, 0, 0, 0, 86],
+    #         "Fist": [71, 79, 0, 0, 0, 0, 64],
+    #         "Open": [255, 111, 250, 250, 250, 250, 55],
     #         "OK": [141, 111, 168, 250, 250, 250, 86],
             
     #     }

@@ -1,3 +1,4 @@
+import os
 import sys
 import threading
 import numpy as np
@@ -6,7 +7,7 @@ import mujoco.viewer
 from PyQt5.QtWidgets import QApplication, QWidget, QSlider, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt
 
-XML_PATH = "urdf/real_hand_l10_left/real_hand_l10_left.xml"
+XML_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "urdf", "real_hand_l10_left", "real_hand_l10_left.xml")
 
 # --- Load model ---
 model = mujoco.MjModel.from_xml_path(XML_PATH)

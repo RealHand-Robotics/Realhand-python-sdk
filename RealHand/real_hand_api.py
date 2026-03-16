@@ -83,8 +83,11 @@ class RealHandApi:
         
         if len(pose) == 0:
             return
+        if any(not isinstance(x, (int, float)) for x in pose):
+            ColorMsg(msg=f"The numerical range can only be integers or floating-point values",color="red")
+            return
         pose = [int(v) for v in pose]
-        if any(not isinstance(x, (int, float)) or x < 0 or x > 255 for x in pose):
+        if any(x < 0 or x > 255 for x in pose):
             ColorMsg(msg=f"The numerical range cannot be less than 0 or greater than 255",color="red")
             return
         if (self.hand_joint.upper() == "O6" or self.hand_joint.upper() == "L6") and len(pose) == 6:

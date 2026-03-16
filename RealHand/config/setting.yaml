@@ -5,7 +5,7 @@ REAL_HAND:  # Hand configuration info
     TOUCH: True # Whether there is a pressure sensor
     CAN: "can0"  # Configure CAN port (default can0). If MODUBS is not "None", CAN config is ignored
     MODBUS: "None" # Whether the communication protocol is 485. Default None. If 485 is enabled, set to the device port /dev/ttyUSB*. CAN config is ignored. Currently only supports O6/L6; more models coming
-    JOINT: G20 # Left-hand model O6/L6/L7/L10/L20/G20/L21/L25/L30
+    JOINT: L30 # Left-hand model O6/L6/L7/L10/L20/G20/L21/L25/L30
     NAME: # Default values, do not modify
       - joint41
       - joint42

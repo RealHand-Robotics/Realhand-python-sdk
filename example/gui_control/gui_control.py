@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QFont, QPainter, QColor, QBrush
 from PyQt5.QtCore import QRect
-from config.constants import _HAND_CONFIGS
+from config.constants import HandConfig, _HAND_CONFIGS
 current_dir = os.path.dirname(os.path.abspath(__file__))
 target_dir = os.path.abspath(os.path.join(current_dir, "../.."))
 sys.path.append(target_dir)
@@ -21,6 +21,7 @@ sys.path.append(target_dir)
 from RealHand.real_hand_api import RealHandApi
 from RealHand.utils.load_write_yaml import LoadWriteYaml
 from RealHand.utils.color_msg import ColorMsg
+from RealHand.core.canfd.real_hand_l30_canfd import L30HandController
 
 
 LOOP_TIME = 1000 # Cycle action interval in milliseconds
@@ -120,8 +121,10 @@ class DotMatrixWidget(QWidget):
 class MatrixDisplayWidget(QWidget):
     """Matrix display widget, containing dot matrices for five fingers - New arrangement"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, rows=12, cols=6):
         super().__init__(parent)
+        self.rows = rows
+        self.cols = cols
         self.finger_matrices = {}
         self.init_ui()
         
@@ -181,7 +184,7 @@ class MatrixDisplayWidget(QWidget):
         finger_layout.addWidget(label)
         
         # Create dot matrix widget
-        matrix = DotMatrixWidget()
+        matrix = DotMatrixWidget(rows=self.rows, cols=self.cols)
         finger_layout.addWidget(matrix, 0, Qt.AlignCenter)
         
         self.finger_matrices[finger_name] = matrix
@@ -215,16 +218,16 @@ class MatrixDisplayWidget(QWidget):
                 except Exception as e:
                     print(f"Error processing matrix data: {e}")
                     # Use default gray matrix on error
-                    default_data = [0] * 72
+                    default_data = [0] * (self.rows * self.cols)
                     self.finger_matrices[finger_name].set_data(default_data)
             else:
                 # Use default gray matrix when data is empty
-                default_data = [0] * 72
+                default_data = [0] * (self.rows * self.cols)
                 self.finger_matrices[finger_name].set_data(default_data)
             
     def initialize_default_matrices(self):
         """Initialize display with default matrix (all dots gray)"""
-        default_data = [0] * 72  # 12x6 zero matrix
+        default_data = [0] * (self.rows * self.cols)
         for finger_name in self.finger_matrices.keys():
             self.finger_matrices[finger_name].set_data(default_data)
 
@@ -356,8 +359,11 @@ class HandApiManager(QObject):
             
         try:
             self.lock = True
-            # Call API to send joint positions
-            self.api.finger_move(positions)
+            if self.hand_joint == "L30":
+                self.api.hand.set_raw_joint_positions(positions)
+            else:
+                # Call API to send joint positions
+                self.api.finger_move(positions)
             self.status_updated.emit("info", "Joint state sent")
         except Exception as e:
             self.status_updated.emit("error", f"Send failed: {str(e)}")
@@ -448,7 +454,9 @@ class HandControlGUI(QWidget):
         # Get hand configuration
         self.hand_joint = self.api_manager.hand_joint
         self.hand_type = self.api_manager.hand_type
-        self.hand_config = _HAND_CONFIGS[self.hand_joint]
+        self.slider_index_map = []
+        self.l30_slider_ranges = []
+        self.hand_config = self.build_hand_config()
         
         # Initialize UI
         self.init_ui()
@@ -458,6 +466,75 @@ class HandControlGUI(QWidget):
         self.publish_timer.setInterval(30)  # 10Hz publish frequency
         self.publish_timer.timeout.connect(self.publish_joint_state)
         self.publish_timer.start()
+
+    def build_hand_config(self):
+        if self.hand_joint != "L30":
+            self.slider_index_map = []
+            self.l30_slider_ranges = []
+            return _HAND_CONFIGS[self.hand_joint]
+
+        base_config = _HAND_CONFIGS[self.hand_joint]
+        slider_ranges = (
+            list(L30HandController.JOINT_LIMITS_LEFT)
+            if self.hand_type == "left"
+            else list(L30HandController.JOINT_LIMITS_RIGHT)
+        )
+        self.slider_index_map = [
+            0, 2, 3, 1,
+            13, 14, 15,
+            12, 7, 8,
+            4, 6, 5,
+            11, 9, 10,
+            16,
+        ]
+        self.l30_slider_ranges = [slider_ranges[idx] for idx in self.slider_index_map]
+        friendly_names = [
+            "Thumb Root", "Thumb Side", "Thumb Rotate", "Thumb Tip",
+            "Index Side", "Index Root", "Index Tip",
+            "Middle Side", "Middle Root", "Middle Tip",
+            "Ring Side", "Ring Root", "Ring Tip",
+            "Little Side", "Little Root", "Little Tip",
+            "Wrist",
+        ]
+        hand = self.api_manager.api.hand
+
+        def normalized_to_raw_display(values):
+            return [
+                hand._norm_to_raw_value(values[i], self.l30_slider_ranges[i])
+                for i in range(len(self.l30_slider_ranges))
+            ]
+
+        open_positions_norm = []
+        fist_positions_norm = []
+        for min_pos, max_pos in self.l30_slider_ranges:
+            neutral = 128 if min_pos < 0 < max_pos else 255
+            open_positions_norm.append(neutral)
+            fist_positions_norm.append(128 if min_pos < 0 < max_pos else 0)
+
+        open_positions = normalized_to_raw_display(open_positions_norm)
+        fist_positions = normalized_to_raw_display(fist_positions_norm)
+
+        merged_presets = {}
+        if base_config.preset_actions:
+            for name, positions in base_config.preset_actions.items():
+                if len(positions) == len(self.slider_index_map):
+                    merged_presets[name] = normalized_to_raw_display(positions)
+        if "Open" not in merged_presets:
+            merged_presets["Open"] = open_positions
+        if "Fist" not in merged_presets:
+            merged_presets["Fist"] = fist_positions
+
+        if len(base_config.init_pos) == len(self.slider_index_map):
+            init_pos = normalized_to_raw_display(base_config.init_pos)
+        else:
+            init_pos = open_positions
+
+        return HandConfig(
+            joint_names=friendly_names,
+            joint_names_en=[L30HandController.JOINT_NAMES[idx] for idx in self.slider_index_map],
+            init_pos=init_pos,
+            preset_actions=merged_presets,
+        )
 
     def init_ui(self):
         """Initialize User Interface"""
@@ -637,7 +714,11 @@ class HandControlGUI(QWidget):
             
             # Create slider
             slider = QSlider(Qt.Horizontal)
-            slider.setRange(0, 255)
+            if self.hand_joint == "L30" and self.l30_slider_ranges:
+                min_value, max_value = self.l30_slider_ranges[i]
+                slider.setRange(min_value, max_value)
+            else:
+                slider.setRange(0, 255)
             slider.setValue(value)
             slider.valueChanged.connect(
                 lambda val, idx=i: self.on_slider_value_changed(idx, val)
@@ -797,7 +878,8 @@ Joint Count: {len(self.hand_config.joint_names)}"""
         # Add matrix heatmap display
         matrix_group = QGroupBox("Finger Matrix Heatmap")
         matrix_layout = QVBoxLayout(matrix_group)
-        self.matrix_display = MatrixDisplayWidget()
+        matrix_rows, matrix_cols = (1, 8) if self.hand_joint == "L30" else (12, 6)
+        self.matrix_display = MatrixDisplayWidget(rows=matrix_rows, cols=matrix_cols)
         matrix_layout.addWidget(self.matrix_display)
         sys_info_layout.addWidget(matrix_group)
 
@@ -964,6 +1046,11 @@ Joint Count: {len(self.hand_config.joint_names)}"""
     def publish_joint_state(self):
         """Publish current joint state"""
         positions = [slider.value() for slider in self.sliders]
+        if self.hand_joint == "L30" and self.slider_index_map:
+            controller_positions = [0] * len(self.slider_index_map)
+            for display_idx, controller_idx in enumerate(self.slider_index_map):
+                controller_positions[controller_idx] = positions[display_idx]
+            positions = controller_positions
         self.api_manager.publish_joint_state(positions)
 
     def update_status(self, status_type: str, message: str):
