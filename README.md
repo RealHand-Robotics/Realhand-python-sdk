@@ -21,11 +21,14 @@ RealHand Python SDK
 ![ROS 2 Jazzy](https://img.shields.io/badge/ROS%202-Jazzy-00B3E6?style=flat-square&logo=ros)
 
 ## Related Documentation
-- For more detailed information about sdk, please refer to this file.
+- For more detailed information, please refer to the following links.
   
 [Real Hand API for Python Document](doc/API-Reference.md)
 
 [SDK Functions Summary](doc/SDK-Functions-Summary.md) 
+
+- For functions under testing
+  [alpha version](https://github.com/RealHand-Robotics/Realhand-python-sdk/tree/testing)
 
 ## Installation
 &ensp;&ensp;After downloading and extracting the folder, you can run the examples after installing the dependencies in requirements.txt. Only Python 3 is supported.
