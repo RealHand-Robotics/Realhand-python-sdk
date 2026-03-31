@@ -34,10 +34,36 @@ RealHand Python SDK
 ## Installation
 &ensp;&ensp;After downloading and extracting the folder, you can run the examples after installing the dependencies in requirements.txt. Only Python 3 is supported.
 - install
+(optional)
+```bash
+$ conda create -n realhand-sdk python==3.11
+$ conda activate realhand-sdk
+```
 
 ```bash
 $ pip3 install -r requirements.txt
 ```
+## Run the GUI example (recommended on Ubuntu)
+(optional) default is left hand G20 using can0 port
+Modify the hand type and can port in Realhand-python-sdk/RealHand/config/setting.yaml
+change the hand port, hand type, based on your setting
+
+for example
+
+EXISTS: True # Whether the left hand exists
+TOUCH: True # Whether there is a pressure sensor
+CAN: "can0"  # Configure CAN port (default can0). If MODUBS is not "None", CAN config is ignored
+MODBUS: "None" # Whether the communication protocol is 485. Default None. If 485 is enabled, set to the device port /dev/ttyUSB*. CAN config is ignored. Currently only supports O6/L6; more models coming
+JOINT: L6 # Left-hand model O6/L6/L7/L10/L20/G20/L21/L25/L30
+NAME: # Default values, do not modify
+
+then run the gui program
+
+```bash
+$ python3 example/gui_control/gui_control.py
+```
+
+## For Windows (L6, L20 supported)
 
 ## PCAN (Regular CAN) Driver Install Guide for Windows
 1. Download the PEAK driver package
