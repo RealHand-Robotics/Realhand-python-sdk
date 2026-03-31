@@ -43,81 +43,77 @@ $ conda activate realhand-sdk
 ```bash
 $ pip3 install -r requirements.txt
 ```
-## Run the GUI example (recommended on Ubuntu)
-(optional) default is left hand G20 using can0 port
-Modify the hand type and can port in Realhand-python-sdk/RealHand/config/setting.yaml
-change the hand port, hand type, based on your setting
+## Run the GUI Example (Ubuntu)
 
-for example
+### Step 1 — Set up CAN interface
 
-EXISTS: True # Whether the left hand exists
-TOUCH: True # Whether there is a pressure sensor
-CAN: "can0"  # Configure CAN port (default can0). If MODUBS is not "None", CAN config is ignored
-MODBUS: "None" # Whether the communication protocol is 485. Default None. If 485 is enabled, set to the device port /dev/ttyUSB*. CAN config is ignored. Currently only supports O6/L6; more models coming
-JOINT: L6 # Left-hand model O6/L6/L7/L10/L20/G20/L21/L25/L30
-NAME: # Default values, do not modify
-
-then run the gui program
+Connect the USB-to-CAN adapter, then bring up the CAN interface (run once per boot):
 
 ```bash
-$ python3 example/gui_control/gui_control.py
+# Bring up can0 at 1 Mbps (adjust interface name if needed, e.g. can1)
+sudo ip link set can0 type can bitrate 1000000
+sudo ip link set up can0
+
+# Verify the interface is up
+ip link show can0
 ```
 
-## For Windows (L6, L20 supported)
+### Step 2 — Configure the hand
 
-## PCAN (Regular CAN) Driver Install Guide for Windows
-1. Download the PEAK driver package
-Open: `https://www.peak-system.com/quick/DL-Driver-E`
-2. Extract and run the installer
-Unzip: `PEAK-System_Driver-Setup.zip`
-Run: `PeakOemDrv.exe`
-Follow the prompts (installs the device driver and PCAN-Basic DLLs)
-3. Plug in the adapter
-Connect the PCAN USB adapter after installation
-Windows should detect it and finish driver setup
-Device Manager should show PCAN-USB (not Unknown Device)
-4. Verify (optional)
-Open PCAN-View (if installed)
-Confirm the channel appears (e.g., `PCAN_USBBUS1`)
+Open `RealHand/config/setting.yaml` and edit the fields to match your hardware:
 
-If it still shows “Unknown Device”:
-- Re-run the installer and ensure PCAN-Basic is selected.
-- Try a different USB port and reboot if prompted.
+```yaml
+# ── Left hand ──────────────────────────────────────────────────────
+EXISTS: True          # True if the left hand is connected
+TOUCH: True           # True if a pressure sensor is installed
+CAN: “can0”           # CAN port (e.g. can0, can1). Ignored when MODBUS is set.
+MODBUS: “None”        # RS485 port, e.g. “/dev/ttyUSB0”. “None” = use CAN.
+JOINT: G20            # Hand model: O6 / L6 / L7 / L10 / L20 / G20 / L21 / L25 / L30
+NAME:                 # Internal name — do not modify
 
-Python example (python-can):
-```python
-import can
-bus = can.interface.Bus(interface="pcan", channel="PCAN_USBBUS1", bitrate=1000000)
+# ── Right hand (same fields, prefixed R_) ──────────────────────────
+R_EXISTS: False
+R_TOUCH: False
+R_CAN: “can1”
+R_MODBUS: “None”
+R_JOINT: G20
+R_NAME:
 ```
 
-## Windows GUI Run
-After installing dependencies and the CAN adapter driver:
-1. Open a Command Prompt or PowerShell in the extracted project folder.
-2. Open RealHand/config/setting.yaml
-3. Change CAN: "can0" to CAN: "PCAN_USBBUS1" for the left or right hand you are using. 
-4. Run:
+Common hand models and their CAN default:
+
+| Model | Joints | Notes |
+|-------|--------|-------|
+| O6 / L6 | 6 | Compact 6-DOF hand |
+| L7 | 7 | L6 + Thumb Rotation |
+| L10 | 10 | Full abduction/adduction |
+| L20 / G20 | 20 | Industrial / high-DOF hand |
+| L21 / L25 / L30 | 21 / 25 / 30 | Extended DOF series |
+
+### Step 3 — Run the GUI
+
 ```bash
-$ python3 example/gui_control/gui_control.py
+python3 example/gui_control/gui_control.py
 ```
 
-## RS485 Protocol Switching (Currently supports O6/L6/L10. For other models, please refer to the MODBUS RS485 protocol document)
+A slider-based UI will open. Use the sliders to control each joint in real time, or click preset action buttons (Open, Fist, OK, etc.).
 
-Edit the config/setting.yaml configuration file and modify the parameters according to the comments inside. Set MODBUS: "/dev/ttyUSB0", meaning the "modbus" parameter in the configuration file should be "/dev/ttyUSB0". The USB-RS485 converter usually appears as /dev/ttyUSB* or /dev/ttyACM* on Ubuntu. 
-modbus: "None" or "/dev/ttyUSB0"
-```bash
-# Ensure requirements.txt dependencies are installed
-# Install system-level related drivers
-$ pip install minimalmodbus --break-system-packages
-$ pip install pyserial --break-system-packages
-$ pip install pymodbus --break-system-packages
-# View the USB-RS485 port number
-$ ls /dev
-# You should see a port similar to ttyUSB0. Grant permissions to the port:
-$ sudo chmod 777 /dev/ttyUSB0
-# GUI control example
-$ python3 example/gui_control/gui_control.py
+### Troubleshooting
 
-```
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| `can0: no such device` | Interface not created | Run `sudo ip link set can0 type can bitrate 1000000 && sudo ip link set up can0` |
+| No response from hand | Wrong `JOINT` type or CAN port | Double-check `setting.yaml`; verify `ip link show can0` shows `UP` |
+| GUI opens but sliders do nothing | Another CAN controller is running | Stop `real_hand_sdk_ros` or other control nodes first |
+| `PermissionError` on CAN socket | Missing permissions | Add your user to the `netdev` group or run with `sudo` (not recommended for production) |
+
+---
+
+## For Windows & RS485 Setup
+
+For Windows (PCAN driver install, Windows GUI run) and RS485 protocol switching, see:
+
+[Windows & RS485 Setup Guide](doc/windows_and_rs485_info.md)
 
 
 
