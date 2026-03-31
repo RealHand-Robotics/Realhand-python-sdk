@@ -132,7 +132,7 @@ L30 related joint position api only supported in ubuntu. Functions for torque/sp
 **Notes:**
 
 1. **L20 :** We are actively upgrading L20 series. G20 is the newer version of L20 designed for industrial applications. Two versions share identical mesh files.
-2. **L30 — Torque/speed/tactile limited:** Functions for torque/speed/tactile is actively updating, please stay tuned. We provide a windows .exe application for joint position testing. [L30 windows UI app](doc/L30-Windows-EXE_Guide.md). For ubuntu user, change JOINT in `setting.yaml` file into L30 for joint position testing.
+2. **L30 — Torque/speed/tactile limited:** Functions for torque/speed/tactile is actively updating, please stay tuned. We provide a windows .exe application for joint position testing. [L30 windows UI app](doc/L30-Windows-EXE-Guide.md). For ubuntu user, change JOINT in `setting.yaml` file into L30 for joint position testing.
 3. **O6 default version — touch not supported:** default version O6 does not support the tactile related functions. Please contact sales for tactile version O6.
 
 
