@@ -1,7 +1,7 @@
 # RealHand-Python-SDK
 
 ## Overview
-RealHand Python SDK
+RealHand Python SDK testing branch
 
 [English](README.md)
 
