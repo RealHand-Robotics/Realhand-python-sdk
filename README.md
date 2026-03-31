@@ -71,7 +71,7 @@ MODBUS: “None”        # RS485 port, e.g. “/dev/ttyUSB0”. “None” = us
 JOINT: G20            # Hand model: O6 / L6 / L20 / G20 / L30
 NAME:                 # Internal name — do not modify
 
-# ── Right hand (same fields, prefixed R_) ──────────────────────────
+# ── Right hand ──────────────────────────
 EXISTS: False
 TOUCH: False
 CAN: “can1”
