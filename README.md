@@ -1,7 +1,7 @@
-# RealHand-Python-SDK
+# RealHand-Python-SDK Testing Branch
 
 ## Overview
-RealHand Python SDK
+RealHand Python SDK branch for testing. We are actively updating the functions in this branch. We apologize for any inconvenience caused by functions that may be unavailable or not working as expected. Please contact our sales (sales@realhand.com) or technical support team (support@realhand.com) if you need assistance.
 
 [English](README.md)
 
@@ -27,7 +27,7 @@ RealHand Python SDK
 
 [SDK Functions Summary](doc/SDK-Functions-Summary.md)
 
-[L30 windows UI app](doc/L30-Windows-EXE_Guide.md)
+[L30 windows UI app](doc/L30-Windows-EXE-Guide.md)
 
 - For functions under testing
   
@@ -40,8 +40,8 @@ RealHand Python SDK
 - install
 (optional)
 ```bash
-$ conda create -n realhand-sdk python==3.11
-$ conda activate realhand-sdk
+$ conda create -n realhand-sdk-testing python==3.11
+$ conda activate realhand-sdk-testing
 ```
 
 ```bash
