@@ -110,6 +110,8 @@ For Windows (PCAN driver install, Windows GUI run) and RS485 protocol switching,
 
 [Windows & RS485 Setup Guide](doc/windows_and_rs485_info.md)
 
+L30 related joint position api only supported in ubuntu. Functions for torque/speed/tactile is actively updating.
+
 ---
 
 ## Supported Functions
