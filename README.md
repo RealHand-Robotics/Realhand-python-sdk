@@ -29,7 +29,7 @@ RealHand Python SDK testing branch
 $ pip3 install -r requirements.txt
 ```
 
-## PCAN (Regular CAN) Driver Install Guide for Windows
+## PCAN (Regular CAN) Driver Install Guide for Windows (L6/L20 only)
 1. Download the PEAK driver package
 Open: `https://www.peak-system.com/quick/DL-Driver-E`
 2. Extract and run the installer
@@ -54,7 +54,7 @@ import can
 bus = can.interface.Bus(interface="pcan", channel="PCAN_USBBUS1", bitrate=1000000)
 ```
 
-## Windows GUI Run
+## Windows GUI Run (L6/L20 only)
 After installing dependencies and the CAN adapter driver:
 1. Open a Command Prompt or PowerShell in the extracted project folder.
 2. Open RealHand/config/setting.yaml
