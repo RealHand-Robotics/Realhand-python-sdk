@@ -1,7 +1,7 @@
 # RealHand-Python-SDK
 
 ## Overview
-RealHand Python SDK testing branch
+RealHand Python SDK
 
 [English](README.md)
 
@@ -13,81 +13,130 @@ RealHand Python SDK testing branch
 ![SDK Version](https://img.shields.io/badge/SDK%20Version-V3.0.1-brightgreen?style=flat-square)
 ![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-blue?style=flat-square&logo=python&logoColor=white)
 ![Windows 11](https://img.shields.io/badge/OS-Windows%2011-0078D4?style=flat-square&logo=windows&logoColor=white)
-![Ubuntu 20.04+](https://img.shields.io/badge/OS-Ubuntu%2020.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)
-![Ubuntu 22.04+](https://img.shields.io/badge/OS-Ubuntu%2022.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)
-![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)
+![Ubuntu 20.04](https://img.shields.io/badge/OS-Ubuntu%2020.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)
+![Ubuntu 22.04](https://img.shields.io/badge/OS-Ubuntu%2022.04%2B-E95420?style=flat-square&logo=ubuntu&logoColor=white)
 ![Ubuntu 24.04](https://img.shields.io/badge/OS-Ubuntu%2024.04-E95420?style=flat-square&logo=ubuntu&logoColor=white)
+![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)
 ![ROS Noetic](https://img.shields.io/badge/ROS-Noetic-009624?style=flat-square&logo=ros)
 ![ROS 2 Jazzy](https://img.shields.io/badge/ROS%202-Jazzy-00B3E6?style=flat-square&logo=ros)
 
+## Related Documentation
+- For more detailed information, please refer to the following links.
+  
+[Real Hand API for Python Document](doc/API-Reference.md)
+
+[SDK Functions Summary](doc/SDK-Functions-Summary.md)
+
+[L30 windows UI app](doc/L30-Windows-EXE_Guide.md)
+
+- For functions under testing
+  
+  [alpha version](https://github.com/RealHand-Robotics/Realhand-python-sdk/tree/testing)
+
+  We are actively supporting functions in L30
 
 ## Installation
 &ensp;&ensp;After downloading and extracting the folder, you can run the examples after installing the dependencies in requirements.txt. Only Python 3 is supported.
 - install
+(optional)
+```bash
+$ conda create -n realhand-sdk python==3.11
+$ conda activate realhand-sdk
+```
 
 ```bash
 $ pip3 install -r requirements.txt
 ```
+## Run the GUI Example (Ubuntu recommended)
 
-## PCAN (Regular CAN) Driver Install Guide for Windows (L6/L20 only)
-1. Download the PEAK driver package
-Open: `https://www.peak-system.com/quick/DL-Driver-E`
-2. Extract and run the installer
-Unzip: `PEAK-System_Driver-Setup.zip`
-Run: `PeakOemDrv.exe`
-Follow the prompts (installs the device driver and PCAN-Basic DLLs)
-3. Plug in the adapter
-Connect the PCAN USB adapter after installation
-Windows should detect it and finish driver setup
-Device Manager should show PCAN-USB (not Unknown Device)
-4. Verify (optional)
-Open PCAN-View (if installed)
-Confirm the channel appears (e.g., `PCAN_USBBUS1`)
+### Step 1 — Set up CAN interface
 
-If it still shows “Unknown Device”:
-- Re-run the installer and ensure PCAN-Basic is selected.
-- Try a different USB port and reboot if prompted.
+Connect the USB-to-CAN adapter, then bring up the CAN interface (run once per boot):
 
-Python example (python-can):
-```python
-import can
-bus = can.interface.Bus(interface="pcan", channel="PCAN_USBBUS1", bitrate=1000000)
-```
-
-## Windows GUI Run (L6/L20 only)
-After installing dependencies and the CAN adapter driver:
-1. Open a Command Prompt or PowerShell in the extracted project folder.
-2. Open RealHand/config/setting.yaml
-3. Change CAN: "can0" to CAN: "PCAN_USBBUS1" for the left or right hand you are using. 
-4. Run:
 ```bash
-$ python3 example/gui_control/gui_control.py
+# Bring up can0 at 1 Mbps (adjust interface name if needed, e.g. can1)
+sudo ip link set can0 type can bitrate 1000000
+
+
+# Verify the interface is up
+ip link show can0
 ```
 
-## RS485 Protocol Switching (Currently supports O6/L6/L10. For other models, please refer to the MODBUS RS485 protocol document)
+### Step 2 — Configure the hand
 
-Edit the config/setting.yaml configuration file and modify the parameters according to the comments inside. Set MODBUS: "/dev/ttyUSB0", meaning the "modbus" parameter in the configuration file should be "/dev/ttyUSB0". The USB-RS485 converter usually appears as /dev/ttyUSB* or /dev/ttyACM* on Ubuntu. 
-modbus: "None" or "/dev/ttyUSB0"
+Open `RealHand/config/setting.yaml` and edit the fields to match your hardware:
+
+```yaml
+# ── Left hand ──────────────────────────────────────────────────────
+EXISTS: True          # True if the left hand is connected
+TOUCH: True           # True if a pressure sensor is installed
+CAN: “can0”           # CAN port (e.g. can0, can1). Ignored when MODBUS is set.
+MODBUS: “None”        # RS485 port, e.g. “/dev/ttyUSB0”. “None” = use CAN.
+JOINT: G20            # Hand model: O6 / L6 / L20 / G20 / L30
+NAME:                 # Internal name — do not modify
+
+# ── Right hand ──────────────────────────
+EXISTS: False
+TOUCH: False
+CAN: “can1”
+MODBUS: “None”
+JOINT: G20
+NAME:
+```
+L20 is a new product and have different versions (L20, G20) based on the hardware and design. G20 is designed for industrial applications.
+
+### Step 3 — Run the GUI
+
 ```bash
-# Ensure requirements.txt dependencies are installed
-# Install system-level related drivers
-$ pip install minimalmodbus --break-system-packages
-$ pip install pyserial --break-system-packages
-$ pip install pymodbus --break-system-packages
-# View the USB-RS485 port number
-$ ls /dev
-# You should see a port similar to ttyUSB0. Grant permissions to the port:
-$ sudo chmod 777 /dev/ttyUSB0
-# GUI control example
-$ python3 example/gui_control/gui_control.py
-
+python3 example/gui_control/gui_control.py
 ```
 
+A slider-based UI will open. Use the sliders to control each joint in real time, or click preset action buttons (Open, Fist, OK, etc.).
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|-------------|-----|
+| `can0: no such device` | Interface not created | Run `sudo ip link set can0 type can bitrate 1000000 && sudo ip link set up can0` |
+| No response from hand | Wrong `JOINT` type or CAN port | Double-check `setting.yaml`; verify `ip link show can0` shows `UP` |
+| GUI opens but sliders do nothing | Another CAN controller is running | Stop `real_hand_sdk_ros` or other control nodes first |
+| `PermissionError` on CAN socket | Missing permissions | Add your user to the `netdev` group or run with `sudo` (not recommended for production) |
+
+---
+
+## For Windows & RS485 Setup
+
+For Windows (PCAN driver install, Windows GUI run) and RS485 protocol switching, see:
+
+[Windows & RS485 Setup Guide](doc/windows_and_rs485_info.md)
+
+---
+
+## Supported Functions
+
+> **Legend:**  ✓ Supported &nbsp;|&nbsp; ~  Actively Updating
+
+| Function             | L6 | L20 | G20 | L30 |
+|----------------------|:--:|:---:|:---:|:---:|
+| `set_joint_position` | ✓  |  ✓  |  ✓  |  ✓  |
+| `set_torque`         | ✓  |  ✓  |  ✓  |  ~  |
+| `set_speed`          | ✓  |  ✓  |  ✓  |  ~  |
+| `get_joint_position` | ✓  |  ✓  |  ✓  |  ~  |
+| `get_torque`         | ✓  |  ✓  |  ✓  |  ~  |
+| `get_speed`          | ✓  |  ✓  |  ✓  |  ~  |
+| `get_touch`          | ✓  |  ✓  |  ✓  |  ~  |
+| `get_matrix_touch`   | ✓  |  ✓  |  ✓  |  ~  |
+
+**Notes:**
+
+1. **L20 :** We are actively upgrading L20 series. G20 is the newer version of L20 designed for industrial applications. Two versions share identical mesh files.
+2. **L30 — Torque/speed/tactile limited:** Functions for torque/speed/tactile is actively updating, please stay tuned. We provide a windows .exe application for joint position testing. [L30 windows UI app](doc/L30-Windows-EXE_Guide.md). For ubuntu user, change JOINT in `setting.yaml` file into L30 for joint position testing.
+3. **O6 default version — touch not supported:** default version O6 does not support the tactile related functions. Please contact sales for tactile version O6.
 
 
-## Related Documentation
-[Real Hand API for Python Document](doc/API-Reference.md)
-[SDK Functions Summary](doc/SDK-Functions-Summary.md) - For more detailed information, refer to this file.
+**Touch / pressure sensors are optional accessories.** 
+ the functions return `-1` or zeros if the sensor is not installed. Check `TOUCH: True/False` in `setting.yaml`.
+
 
 ## Update Log
 
