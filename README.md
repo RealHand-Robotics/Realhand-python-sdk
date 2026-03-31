@@ -85,6 +85,8 @@ NAME:
 ```
 L20 is a new product and have different versions (L20, G20) based on the hardware and design. G20 is designed for industrial applications.
 
+Default Joint in setting.yaml in testing branch is L30.
+
 ### Step 3 — Run the GUI
 
 ```bash
