@@ -68,27 +68,18 @@ EXISTS: True          # True if the left hand is connected
 TOUCH: True           # True if a pressure sensor is installed
 CAN: “can0”           # CAN port (e.g. can0, can1). Ignored when MODBUS is set.
 MODBUS: “None”        # RS485 port, e.g. “/dev/ttyUSB0”. “None” = use CAN.
-JOINT: G20            # Hand model: O6 / L6 / L7 / L10 / L20 / G20 / L21 / L25 / L30
+JOINT: G20            # Hand model: O6 / L6 / L20 / G20 / L30
 NAME:                 # Internal name — do not modify
 
 # ── Right hand (same fields, prefixed R_) ──────────────────────────
-R_EXISTS: False
-R_TOUCH: False
-R_CAN: “can1”
-R_MODBUS: “None”
-R_JOINT: G20
-R_NAME:
+EXISTS: False
+TOUCH: False
+CAN: “can1”
+MODBUS: “None”
+JOINT: G20
+NAME:
 ```
-
-Common hand models and their CAN default:
-
-| Model | Joints | Notes |
-|-------|--------|-------|
-| O6 / L6 | 6 | Compact 6-DOF hand |
-| L7 | 7 | L6 + Thumb Rotation |
-| L10 | 10 | Full abduction/adduction |
-| L20 / G20 | 20 | Industrial / high-DOF hand |
-| L21 / L25 / L30 | 21 / 25 / 30 | Extended DOF series |
+L20 is a new product and have different versions (L20, G20) based on the hardware and design. G20 is designed for industrial applications.
 
 ### Step 3 — Run the GUI
 
