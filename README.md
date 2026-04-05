@@ -29,7 +29,7 @@ RealHand Python SDK
 
 - For functions under testing
   
-  [alpha version](https://github.com/RealHand-Robotics/Realhand-python-sdk/tree/testing)
+  [alpha release](https://github.com/RealHand-Robotics/Realhand-python-sdk/tree/testing)
 
 ## Installation
 &ensp;&ensp;After downloading and extracting the folder, you can run the examples after installing the dependencies in requirements.txt. Only Python 3 is supported.
